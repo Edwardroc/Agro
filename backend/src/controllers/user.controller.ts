@@ -1,24 +1,36 @@
 import { Request, Response } from "express";
 import { UserModel } from "../models/user.model";
+import { NotificationModel } from "../models/notification.model";
 import { firebaseAdmin } from "../config/firebase";
 
-// Crear un nuevo usuario
+// 🟢 Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { uid, nombre, email, rol, telefono, direccion } = req.body;
+    const {
+      uid,
+      primer_nombre,
+      segundo_nombre,
+      primer_apellido,
+      segundo_apellido,
+      email,
+      rol,
+      telefono,
+      direccion,
+    } = req.body;
 
-    // Verificar duplicados por UID o correo
+    // 1️⃣ Verificar duplicados por UID o correo
     const existingUser = await UserModel.findOne({ $or: [{ uid }, { email }] });
     if (existingUser) {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
 
-    // 👇 Los compradores se activan automáticamente, los vendedores quedan pendientes
-    const estado = rol === "comprador" ? "activo" : "pendiente";
-
+    // 2️⃣ Crear usuario en la base de datos
     const newUser = await UserModel.create({
       uid,
-      nombre,
+      primer_nombre,
+      segundo_nombre,
+      primer_apellido,
+      segundo_apellido,
       email,
       rol,
       telefono,
@@ -27,22 +39,32 @@ export const createUser = async (req: Request, res: Response) => {
         ciudad: direccion?.ciudad || "",
         detalle: direccion?.detalle || "",
       },
-      foto_perfil: "",
-      estado: "pendiente", // hasta que el admin lo apruebe
+      estado: rol === "vendedor" ? "pendiente" : "activo",
       fecha_registro: new Date(),
     });
 
-    // 👇 Establecer el custom claim de rol en Firebase
-    await firebaseAdmin.auth().setCustomUserClaims(uid, { role: rol });
+    // 3️⃣ Notificar al administrador si es un vendedor pendiente
+    if (rol === "vendedor") {
+      const nombreCompleto = `${primer_nombre} ${segundo_nombre || ""} ${primer_apellido} ${segundo_apellido || ""}`.trim();
 
-    res.status(201).json(newUser);
+      await NotificationModel.create({
+        usuario_uid: "admin-system", // puedes usar el UID de un admin real
+        mensaje: `Nuevo vendedor pendiente de aprobación: ${nombreCompleto} (${email})`,
+        tipo: "sistema",
+      });
+    }
+
+    res.status(201).json({
+      message: "Usuario creado correctamente",
+      user: newUser,
+    });
   } catch (error) {
-    console.error("Error creando usuario:", error);
+    console.error("❌ Error creando usuario:", error);
     res.status(500).json({ message: "Error al crear usuario" });
   }
 };
 
-// Obtener todos los usuarios (solo admin)
+// 🔵 Obtener todos los usuarios (solo admin)
 export const getAllUsers = async (_req: Request, res: Response) => {
   try {
     const users = await UserModel.find();
@@ -53,7 +75,7 @@ export const getAllUsers = async (_req: Request, res: Response) => {
   }
 };
 
-// Obtener usuario por UID de Firebase
+// 🔵 Obtener usuario por UID de Firebase
 export const getUserByFirebaseUID = async (req: Request, res: Response) => {
   try {
     const { uid } = req.params;
@@ -70,14 +92,16 @@ export const getUserByFirebaseUID = async (req: Request, res: Response) => {
   }
 };
 
-// Actualizar usuario por ID de MongoDB
+// ✏️ Actualizar usuario
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updated = await UserModel.findByIdAndUpdate(id, req.body, { new: true });
+
     if (!updated) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
     res.json(updated);
   } catch (error) {
     console.error("Error actualizando usuario:", error);
@@ -85,9 +109,9 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-// Eliminar usuario (de MongoDB y Firebase)
+// ❌ Eliminar usuario (de MongoDB y Firebase)
 export const deleteUser = async (req: Request, res: Response) => {
-  try {
+  try {   
     const { id } = req.params;
 
     const user = await UserModel.findByIdAndDelete(id);
@@ -105,7 +129,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-// Aprobar o rechazar usuario (solo admin)
+// 🟡 Aprobar o rechazar usuario (solo admin)
 export const approveOrRejectUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -116,10 +140,20 @@ export const approveOrRejectUser = async (req: Request, res: Response) => {
     }
 
     const updated = await UserModel.findByIdAndUpdate(id, { estado }, { new: true });
-
     if (!updated) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
+    // 🔔 Notificar al usuario
+    const nombreCompleto = `${updated.primer_nombre} ${updated.primer_apellido}`.trim();
+    await NotificationModel.create({
+      usuario_uid: updated.uid,
+      mensaje:
+        estado === "aprobado"
+          ? `Hola ${nombreCompleto}, tu solicitud de vendedor ha sido aprobada ✅`
+          : `Hola ${nombreCompleto}, tu solicitud de vendedor fue rechazada ❌. Contacta al administrador.`,
+      tipo: "sistema",
+    });
 
     res.json({ message: `Usuario ${estado} correctamente`, user: updated });
   } catch (error) {

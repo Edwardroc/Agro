@@ -3,8 +3,8 @@ import { connectDB } from "../config/database"; // asegúrate de importar tu con
 import { UserModel } from "../models/user.model";
 
 async function setUserRole() {
-  const uid = "wToivb4aYugVO5DCLXsxaLAxIHm2"; // 👈 UID del usuario en Firebase
-  const role = "admin"; // o "vendedor", "comprador"
+  const uid = "YO04Wjzb8WgjbGVz1KAhbp8JyG83"; // 👈 UID del usuario en Firebase
+  const role = "vendedor"; // o "vendedor", "comprador"
 
   try {
     // 1️⃣ Conectarse a MongoDB

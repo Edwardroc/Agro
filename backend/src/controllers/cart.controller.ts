@@ -73,3 +73,51 @@ export const clearCart = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error al vaciar carrito" });
   }
 };
+
+
+export const removeItemFromCart = async (req: Request, res: Response) => {
+  try {
+    const { uid, productId } = req.params;
+
+    const cart = await CartModel.findOne({ comprador_uid: uid });
+    if (!cart) {
+      return res.status(404).json({ message: "Carrito no encontrado" });
+    }
+
+    // Buscar el producto en el carrito
+    const itemIndex = cart.items.findIndex(
+      (item) => item.producto_id.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Producto no encontrado en el carrito" });
+    }
+
+    // 🔹 Reducir cantidad o eliminar el producto
+    const item = cart.items[itemIndex];
+    if (item.cantidad > 1) {
+      item.cantidad -= 1; // resta solo una unidad
+    } else {
+      cart.items.splice(itemIndex, 1); // elimina si ya era la última unidad
+    }
+
+    // 🔹 Recalcular total
+    cart.total = cart.items.reduce(
+      (sum, i) => sum + i.cantidad * i.precio_unitario,
+      0
+    );
+
+    cart.fecha_actualizacion = new Date().toISOString();
+    await cart.save();
+
+    res.status(200).json({
+      message: "Producto actualizado en el carrito correctamente",
+      carrito: cart,
+    });
+  } catch (error) {
+    console.error("Error eliminando producto del carrito:", error);
+    res.status(500).json({ message: "Error al eliminar producto del carrito" });
+  }
+};
+
+

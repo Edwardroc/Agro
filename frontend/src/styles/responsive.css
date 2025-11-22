@@ -1,0 +1,155 @@
+/* Responsive Design System */
+
+/* Mobile First Breakpoints */
+/* 
+  xs: 0-575px (mobile)
+  sm: 576-767px (small tablets)
+  md: 768-991px (tablets)
+  lg: 992-1199px (desktops)
+  xl: 1200px+ (large desktops)
+*/
+
+/* Extra Small Devices */
+@media (max-width: 575px) {
+  :root {
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .page-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .btn-large {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Hide on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Full width on mobile */
+  .mobile-full {
+    width: 100% !important;
+  }
+
+  /* Stack on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+}
+
+/* Small Devices (Tablets) */
+@media (min-width: 576px) and (max-width: 767px) {
+  .page-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .hide-sm {
+    display: none !important;
+  }
+}
+
+/* Medium Devices (Tablets) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .hide-md {
+    display: none !important;
+  }
+}
+
+/* Large Devices (Desktops) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .hide-lg {
+    display: none !important;
+  }
+}
+
+/* Extra Large Devices */
+@media (min-width: 1200px) {
+  .page-container {
+    padding: 2rem;
+  }
+
+  .hide-xl {
+    display: none !important;
+  }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero-section {
+    padding: 4rem 2rem;
+  }
+
+  .modal-content {
+    max-height: 80vh;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header,
+  .footer,
+  .btn-primary,
+  .btn-secondary,
+  .sidebar {
+    display: none !important;
+  }
+
+  .main-content {
+    padding-top: 0;
+  }
+
+  * {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000;
+    --shadow: none;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Dark Mode Support (for future implementation) */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode variables can be defined here */
+}

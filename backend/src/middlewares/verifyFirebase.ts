@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { firebaseAdmin } from "../config/firebase.js";
+import { firebaseAdmin } from "../config/firebase";
 
 export const verifyFirebaseToken = async (
   req: Request,
@@ -16,12 +16,8 @@ export const verifyFirebaseToken = async (
     const token = authHeader.split(" ")[1];
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
 
-    // Guardamos el UID y rol de Firebase en la request
+    // Guardamos el UID de Firebase en la request
     req.uid = decodedToken.uid;
-    req.user = {
-      uid: decodedToken.uid,
-      role: decodedToken.role || "comprador"
-    };
 
     next();
   } catch (error) {

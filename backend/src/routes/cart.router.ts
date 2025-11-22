@@ -1,7 +1,10 @@
 import express from "express";
-import { addToCart,getCart,clearCart } from "../controllers/cart.controller.js";
+import { addToCart,getCart,clearCart,removeItemFromCart } from "../controllers/cart.controller.js";
+import { verifyFirebaseToken } from "../middlewares/verifyFirebase.js";
+import { checkRole } from "../middlewares/checkRole.js";
 const router = express.Router();    
-router.get("/:uid", getCart);
-router.post("/", addToCart);
-router.delete("/:uid", clearCart);
+router.get("/:uid", verifyFirebaseToken,checkRole(["comprador"]), getCart);
+router.post("/", verifyFirebaseToken,checkRole(["comprador"]), addToCart);
+router.delete("/:uid", verifyFirebaseToken, checkRole(["comprador"]), clearCart);
+router.delete("/:uid/:productId", verifyFirebaseToken, checkRole(["comprador"]), removeItemFromCart);
 export default router;

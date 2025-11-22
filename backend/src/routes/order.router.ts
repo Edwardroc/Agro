@@ -1,12 +1,22 @@
-import  express  from "express";
+import express from "express";
+import {
+  createOrder,
+  getOrders,
+  getOrderById,
+  updateOrderStatus,
+  deleteOrder
+} from "../controllers/order.controller";
 
-import { createOrder, getOrders, getOrderById, updateOrderStatus } from "../controllers/order.controller.js";
+import { verifyFirebaseToken } from "../middlewares/verifyFirebase";
+import { checkRole } from "../middlewares/checkRole";
 
-const router=express.Router();
+const router = express.Router();
 
-router.post("/", createOrder);
-router.get("/", getOrders);
-router.get("/:id", getOrderById);
-router.put("/:id/status", updateOrderStatus);
+
+router.post("/", verifyFirebaseToken, checkRole(["comprador"]), createOrder);
+router.get("/", verifyFirebaseToken, checkRole(["admin"]), getOrders);
+router.get("/:id", verifyFirebaseToken, checkRole(["admin", "comprador"]), getOrderById);
+router.patch("/:id", verifyFirebaseToken, checkRole(["admin", "vendedor"]), updateOrderStatus);
+router.delete("/:id", verifyFirebaseToken, checkRole(["admin"]), deleteOrder);
 
 export default router;

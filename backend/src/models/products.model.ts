@@ -1,6 +1,8 @@
 import { Schema, model, Model } from "mongoose";
 import { Product } from "../interfaces/product.interface";
 
+
+
 const ProductSchema = new Schema<Product>({
   nombre: { type: String, required: true },
   descripcion: String,
