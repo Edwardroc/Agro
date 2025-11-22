@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserModel } from "../models/user.model";
-import { firebaseAdmin } from "../config/firebase"; // Firebase Admin SDK
+import { firebaseAdmin } from "../config/firebase";
 
 // Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response) => {
@@ -12,6 +12,9 @@ export const createUser = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
+
+    // 👇 Los compradores se activan automáticamente, los vendedores quedan pendientes
+    const estado = rol === "comprador" ? "activo" : "pendiente";
 
     const newUser = await UserModel.create({
       uid,
@@ -28,6 +31,9 @@ export const createUser = async (req: Request, res: Response) => {
       estado: "pendiente", // hasta que el admin lo apruebe
       fecha_registro: new Date(),
     });
+
+    // 👇 Establecer el custom claim de rol en Firebase
+    await firebaseAdmin.auth().setCustomUserClaims(uid, { role: rol });
 
     res.status(201).json(newUser);
   } catch (error) {

@@ -1,11 +1,12 @@
 import { Router } from "express";
-import cartRouter from "./cart.router";
-import orderRouter from "./order.router";
-import productRouter from "./product.router";
-import reviewRouter from "./review.router";
-import userRouter from "./user.router";
+import cartRouter from "./cart.router.js";
+import orderRouter from "./order.router.js";
+import productRouter from "./product.router.js";
+import reviewRouter from "./review.router.js";
+import userRouter from "./user.router.js";
 
 const router = Router();
+
 router.get("/", (_, res) => {
   res.send("API is running...");
 });
