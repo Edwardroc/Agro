@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-
+import { OrderList } from './components/orders/OrderList';
 // Pages
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
@@ -18,7 +18,8 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { MyProductsPage } from './pages/MyProductsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-
+import { ProfilePage } from './pages/ProfilePage';
+import { MyOrdersPage } from './pages/MyOrdersPage';
 // Styles
 import './styles/index.css';
 import './styles/auth.css';
@@ -49,13 +50,36 @@ const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/my-orders"
+              element={
+                 <ProtectedRoute allowedRoles={['comprador']}>
+                  <OrderList />
+                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                  <ProtectedRoute>
+                   <ProfilePage />
+                  </ProtectedRoute>
+             }
+            />
             <Route
               path="/products"
               element={
                 <ProtectedRoute>
                   <ProductsPage />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+            path="/my-orders"
+            element={
+              <ProtectedRoute allowedRoles={['comprador']}>
+               <MyOrdersPage />
+              </ProtectedRoute>
               }
             />
 

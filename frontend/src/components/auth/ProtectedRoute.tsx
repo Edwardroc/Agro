@@ -27,21 +27,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Verificar estado del usuario
-  if (mongoUser.estado === 'pendiente') {
-    return (
-      <div className="pending-approval">
-        <h2>Cuenta Pendiente de Aprobación</h2>
-        <p>Tu cuenta está siendo revisada por un administrador.</p>
-        <p>Te notificaremos cuando sea aprobada.</p>
-      </div>
-    );
+  if (mongoUser.estado === 'pendiente' && mongoUser.rol === 'vendedor') {
+    return <Navigate to="/register" replace />;
   }
 
   if (mongoUser.estado === 'bloqueado') {
     return (
       <div className="blocked-account">
-        <h2>Cuenta Bloqueada</h2>
-        <p>Tu cuenta ha sido suspendida. Contacta al administrador.</p>
+        <h2>🚫 Cuenta Bloqueada</h2>
+        <p>Tu cuenta ha sido suspendida. Contacta al administrador para más información.</p>
       </div>
     );
   }

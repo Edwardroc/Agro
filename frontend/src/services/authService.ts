@@ -24,9 +24,10 @@ export const authService = {
       // Guardar token
       localStorage.setItem('firebaseToken', token);
 
-      const initialStatus = data.rol?.toLowerCase() === 'comprador' ? 'activo' : 'pendiente';
+      // Estado inicial según el rol
+      const initialStatus = data.rol === 'comprador' ? 'activo' : 'pendiente';
       
-      // 2. Registrar en MongoDB con snake_case
+      // 2. Registrar en MongoDB
       const mongoUser = await api.post<User>('/user', {
         uid: firebaseUser.uid,
         primer_nombre: data.primer_nombre,
@@ -45,7 +46,7 @@ export const authService = {
         mongoUser: mongoUser.data 
       };
     } catch (error: any) {
-      console.error("Error detallado en el registro:", error); 
+      console.error("Error en el registro:", error); 
       
       if (error.code) {
         switch (error.code) {
