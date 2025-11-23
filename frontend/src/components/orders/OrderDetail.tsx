@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import {api} from '../../config/api';
 
 interface Order {
@@ -26,7 +26,7 @@ interface Order {
 
 export const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,8 +83,8 @@ export const OrderDetail = () => {
   };
 
   const canUpdateStatus = () => {
-    if (!user || !order) return false;
-    return user.rol === 'admin' || user.rol === 'vendedor';
+    if (!mongoUser || !order) return false;
+    return mongoUser.rol === 'admin' || mongoUser.rol === 'vendedor';
   };
 
   const getAvailableStatuses = () => {

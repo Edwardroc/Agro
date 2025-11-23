@@ -24,8 +24,13 @@ export const cartService = {
     return response.data;
   },
 
+  // Remover producto del carrito
+  removeFromCart: async (uid: string, productId: string): Promise<void> => {
+    await api.delete(`/cart/${uid}/items/${productId}`);
+  },
+
   // Vaciar carrito
   clearCart: async (uid: string): Promise<void> => {
-    await api.delete(`/cart/${uid}`);
+    await api.delete(`/cart/${uid}/clear`);
   }
 };

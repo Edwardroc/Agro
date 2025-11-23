@@ -12,13 +12,22 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [showCartDropdown, setShowCartDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
   const cartItemsCount = cart?.items?.reduce((sum, item) => sum + item.cantidad, 0) || 0;
+
+  // Obtener nombre completo del usuario
+  const getNombreCompleto = () => {
+    if (!mongoUser) return '';
+    const nombre = mongoUser.primer_nombre || '';
+    const apellido = mongoUser.primer_apellido || '';
+    return `${nombre} ${apellido}`.trim();
+  };
 
   return (
     <header className="header">
@@ -64,29 +73,27 @@ const [showUserDropdown, setShowUserDropdown] = useState(false);
           )}
 
           <div className="user-menu">
-            <button className="icon-btn user-btn"
+            <button 
+              className="icon-btn user-btn"
               onClick={() => setShowUserDropdown(!showUserDropdown)} 
-              >
+            >
               <User size={24} />
             </button>
             {showUserDropdown && (
-            <div className="user-dropdown">
-              <div className="user-info">
-                <p className="user-name">{mongoUser?.primerNombre}</p>
-                <p className="user-name">{mongoUser?.segundoNombre}</p>
-                <p className="user-name">{mongoUser?.primerApellido}</p>
-                <p className="user-name">{mongoUser?.segundoApellido}</p>
-                <p className="user-role">{mongoUser?.rol}</p>
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <p className="user-name">{getNombreCompleto()}</p>
+                  <p className="user-role">{mongoUser?.rol}</p>
+                </div>
+                <hr />
+                <Link to="/profile" className="dropdown-item">
+                  Mi Perfil
+                </Link>
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <LogOut size={16} />
+                  Cerrar Sesión
+                </button>
               </div>
-              <hr />
-              <Link to="/profile" className="dropdown-item">
-                Mi Perfil
-              </Link>
-              <button onClick={handleLogout} className="dropdown-item logout">
-                <LogOut size={16} />
-                Cerrar Sesión
-              </button>
-            </div>
             )}
           </div>
 

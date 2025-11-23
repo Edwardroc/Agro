@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import {api} from '../../config/api';
+import { api } from '../../config/api';
 import '../../styles/dashboard.css';
 
 interface Product {
@@ -30,7 +30,7 @@ interface Order {
 }
 
 export const VendedorDashboard = () => {
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -39,21 +39,21 @@ export const VendedorDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, [user]);
+  }, [mongoUser]);
 
   const loadDashboardData = async () => {
-    if (!user?.uid) return;
+    if (!mongoUser?.uid) return;
 
     try {
       setLoading(true);
       const [productsRes, ordersRes] = await Promise.all([
-        api.get('/product/getProducts'),
-        api.get('/order/getOrders')
+        api.get('/product'),
+        api.get('/order')
       ]);
 
       // Filtrar productos del vendedor
       const vendorProducts = productsRes.data.filter(
-        (p: Product & { vendedor_uid: string }) => p.vendedor_uid === user.uid
+        (p: Product & { vendedor_uid: string }) => p.vendedor_uid === mongoUser.uid
       );
       setProducts(vendorProducts);
 
@@ -74,7 +74,7 @@ export const VendedorDashboard = () => {
 
   const handleToggleProduct = async (productId: string, currentStatus: boolean) => {
     try {
-      await api.put(`/product/updateProduct/${productId}`, {
+      await api.put(`/product/${productId}`, {
         activo: !currentStatus
       });
       await loadDashboardData();
@@ -89,7 +89,7 @@ export const VendedorDashboard = () => {
     if (!window.confirm('¿Estás seguro de eliminar este producto?')) return;
 
     try {
-      await api.delete(`/product/deleteProduct/${productId}`);
+      await api.delete(`/product/${productId}`);
       await loadDashboardData();
       alert('Producto eliminado correctamente');
     } catch (error) {
@@ -130,7 +130,7 @@ export const VendedorDashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1>Panel de Vendedor</h1>
-        <p>Bienvenido, {user?.nombre}</p>
+        <p>Bienvenido, {mongoUser?.primer_nombre}</p>
       </div>
 
       <div className="stats-grid">

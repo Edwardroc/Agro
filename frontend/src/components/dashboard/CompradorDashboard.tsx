@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import {api} from '../../config/api';
+import { api } from '../../config/api';
 import '../../styles/dashboard.css';
 
 interface Order {
@@ -25,7 +25,8 @@ interface Order {
 }
 
 interface UserProfile {
-  nombre: string;
+  primer_nombre: string;
+  primer_apellido: string;
   email: string;
   telefono?: string;
   direccion?: {
@@ -36,7 +37,7 @@ interface UserProfile {
 }
 
 export const CompradorDashboard = () => {
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,24 +46,30 @@ export const CompradorDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, [user]);
+  }, [mongoUser]);
 
   const loadDashboardData = async () => {
-    if (!user?.uid) return;
+    if (!mongoUser?.uid) return;
 
     try {
       setLoading(true);
       
       // Cargar pedidos del comprador
-      const ordersRes = await api.get('/order/getOrders');
+      const ordersRes = await api.get('/order');
       const userOrders = ordersRes.data.filter(
-        (order: Order) => order.comprador_uid === user.uid
+        (order: Order) => order.comprador_uid === mongoUser.uid
       );
       setOrders(userOrders);
 
       // Cargar perfil
-      const profileRes = await api.get(`/user/${user.uid}`);
-      setProfile(profileRes.data);
+      const profileRes = await api.get(`/user/${mongoUser.uid}`);
+      setProfile({
+        primer_nombre: profileRes.data.primer_nombre,
+        primer_apellido: profileRes.data.primer_apellido,
+        email: profileRes.data.email,
+        telefono: profileRes.data.telefono,
+        direccion: profileRes.data.direccion
+      });
     } catch (error) {
       console.error('Error cargando datos del comprador:', error);
     } finally {
@@ -110,7 +117,7 @@ export const CompradorDashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1>Mi Panel de Compras</h1>
-        <p>Bienvenido, {user?.nombre}</p>
+        <p>Bienvenido, {mongoUser?.primer_nombre}</p>
       </div>
 
       <div className="stats-grid">
@@ -262,14 +269,14 @@ export const CompradorDashboard = () => {
               <div className="profile-card">
                 <div className="profile-avatar">
                   <div className="avatar-circle">
-                    {profile.nombre.charAt(0).toUpperCase()}
+                    {profile.primer_nombre.charAt(0).toUpperCase()}
                   </div>
                 </div>
 
                 <div className="profile-info">
                   <div className="info-group">
                     <label>Nombre</label>
-                    <p>{profile.nombre}</p>
+                    <p>{profile.primer_nombre}</p>
                   </div>
 
                   <div className="info-group">

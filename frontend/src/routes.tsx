@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from 'contexts/AuthContext';
 import {ProtectedRoute} from "./components/auth/ProtectedRoute";
 
 // Pages
@@ -19,7 +19,7 @@ import {VendedorDashboard} from "./components/dashboard/VendedorDashboard";
 import {CompradorDashboard} from "./components/dashboard/CompradorDashboard";
 
 const AppRoutes = () => {
-  const { user, loading } = useAuth();
+  const { mongoUser, loading } = useAuth();
 
   if (loading) {
     return (
@@ -40,11 +40,11 @@ const AppRoutes = () => {
       {/* Auth routes */}
       <Route 
         path="/login" 
-        element={user ? <Navigate to="/dashboard" /> : <LoginPage />} 
+        element={mongoUser ? <Navigate to="/dashboard" /> : <LoginPage />} 
       />
       <Route 
         path="/register" 
-        element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} 
+        element={mongoUser ? <Navigate to="/dashboard" /> : <RegisterPage />} 
       />
 
       {/* Rutas protegidas */}
@@ -57,8 +57,8 @@ const AppRoutes = () => {
           <Route 
             index 
             element={
-              user?.rol === "admin" ? <AdminDashboard /> :
-              user?.rol === "vendedor" ? <VendedorDashboard /> :
+              mongoUser?.rol === "admin" ? <AdminDashboard /> :
+              mongoUser?.rol === "vendedor" ? <VendedorDashboard /> :
               <CompradorDashboard />
             } 
           />

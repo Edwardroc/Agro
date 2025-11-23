@@ -67,7 +67,7 @@ export const CartPage: React.FC = () => {
               <div className="cart-content">
                 <div className="cart-items-section">
                   {cart.items.map((item) => (
-                    <CartItem key={item.producto_id} item={item} />
+                    <CartItem key={item.producto_id} item={item} onUpdateQuantity={() => window.location.reload()} />
                   ))}
                 </div>
 

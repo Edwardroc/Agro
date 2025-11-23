@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,16 @@ export const CheckoutPage: React.FC = () => {
   const { mongoUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+
+  // Redirigir si no hay carrito
+  useEffect(() => {
+    if (!cart || cart.items.length === 0) {
+      setRedirecting(true);
+      const timer = setTimeout(() => navigate('/cart'), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [cart, navigate]);
 
   const [formData, setFormData] = useState({
     metodo_pago: 'transferencia',
@@ -48,6 +58,12 @@ export const CheckoutPage: React.FC = () => {
     
     if (!cart || !mongoUser) return;
 
+    // Validar dirección
+    if (!formData.direccion_envio.departamento || !formData.direccion_envio.ciudad || !formData.direccion_envio.detalle) {
+      toast.error('Por favor completa la dirección de envío');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -63,15 +79,31 @@ export const CheckoutPage: React.FC = () => {
       await clearCart();
       toast.success('¡Pedido realizado exitosamente!');
       navigate('/my-orders');
-    } catch (error) {
-      toast.error('Error al procesar el pedido');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al procesar el pedido');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Si está redirigiendo, mostrar pantalla de carga
+  if (redirecting) {
+    return (
+      <>
+        <Header />
+        <main className="main-content">
+          <div className="loader-container">
+            <div className="loader"></div>
+            <p>Redirigiendo...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   if (!cart || cart.items.length === 0) {
-    navigate('/cart');
     return null;
   }
 

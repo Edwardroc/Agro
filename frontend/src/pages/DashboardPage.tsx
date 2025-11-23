@@ -19,7 +19,7 @@ export const DashboardPage: React.FC = () => {
         <div className="page-container">
           <div className="dashboard">
             <div className="dashboard-header">
-              <h1>Bienvenido, {mongoUser.primerNombre}</h1>
+              <h1>Bienvenido, {mongoUser.primer_nombre}</h1>
               <p className="user-role-badge">{mongoUser.rol}</p>
             </div>
 

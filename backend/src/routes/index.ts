@@ -1,22 +1,23 @@
 import { Router } from "express";
-import cartRouter from "./cart.router";
-import orderRouter from "./order.router";
-import productRouter from "./product.router";
-import reviewRouter from "./review.router";
-import userRouter from "./user.router";
-import notificationRouter from "./notification.router"
+import cartRouter from "./cart.router.js";
+import orderRouter from "./order.router.js";
+import productRouter from "./product.router.js";
+import reviewRouter from "./review.router.js";
+import userRouter from "./user.router.js";
+import notificationRouter from "./notification.router.js";
 
 const router = Router();
+
 router.get("/", (_, res) => {
   res.send("API is running...");
 });
 
-// Agrupar rutas bajo prefijos
-router.use("/cart", cartRouter);
-router.use("/order", orderRouter);
-router.use("/product", productRouter);
-router.use("/review", reviewRouter);
-router.use("/user", userRouter);
-router.use("/notification",notificationRouter);
+// Rutas con prefijos claros
+router.use("/api/cart", cartRouter);
+router.use("/api/order", orderRouter);
+router.use("/api/product", productRouter);
+router.use("/api/review", reviewRouter);
+router.use("/api/user", userRouter);
+router.use("/api/notification", notificationRouter);
 
 export default router;

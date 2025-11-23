@@ -27,7 +27,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (!product._id) return;
+    if (!product._id) {
+      console.error('Producto sin ID');
+      return;
+    }
     
     await addToCart({
       producto_id: product._id,
@@ -51,9 +54,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const handleNavigate = () => {
+    if (!product._id) {
+      console.error('No se puede navegar: producto sin ID');
+      return;
+    }
+    navigate(`/products/${product._id}`);
+  };
+
   const getCategoryName = () => {
-    if (typeof product.categoria_id === 'object') {
-      return product.categoria_id.nombre;
+    if (typeof product.categoria_id === 'object' && product.categoria_id !== null) {
+      return product.categoria_id.nombre || 'Sin categoría';
     }
     return 'Sin categoría';
   };
@@ -61,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div 
       className="product-card"
-      onClick={() => navigate(`/products/${product._id}`)}
+      onClick={handleNavigate}
     >
       <div className="product-image">
         {product.imagenes && product.imagenes.length > 0 ? (

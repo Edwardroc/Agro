@@ -4,31 +4,31 @@ import { Product, ProductFormData } from '../interfaces/product.interface';
 export const productService = {
   // Obtener todos los productos
   getAll: async (): Promise<Product[]> => {
-    const response = await api.get<Product[]>('/product/'); // ✅ Cambiado
+    const response = await api.get<Product[]>('/product');
     return response.data;
   },
 
   // Obtener producto por ID
   getById: async (id: string): Promise<Product> => {
-    const response = await api.get<Product>(`/product/${id}`); // ✅ Cambiado (también había error de sintaxis con backticks)
+    const response = await api.get<Product>(`/product/${id}`);
     return response.data;
   },
 
   // Crear producto (solo vendedor)
   create: async (data: ProductFormData): Promise<Product> => {
-    const response = await api.post<Product>('/product/', data); // ✅ Cambiado
+    const response = await api.post<Product>('/product', data);
     return response.data;
   },
 
   // Actualizar producto
   update: async (id: string, data: Partial<ProductFormData>): Promise<Product> => {
-    const response = await api.put<Product>(`/product/${id}`, data); // ✅ Cambiado (también había error de sintaxis)
+    const response = await api.put<Product>(`/product/${id}`, data);
     return response.data;
   },
 
   // Eliminar producto
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/product/${id}`); // ✅ Cambiado (también había error de sintaxis)
+    await api.delete(`/product/${id}`);
   },
 
   // Filtrar productos por vendedor

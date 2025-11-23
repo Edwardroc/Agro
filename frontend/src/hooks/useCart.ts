@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import {api} from '../config/api';
 
 interface CartItem {
@@ -17,19 +17,19 @@ interface Cart {
 }
 
 export const useCart = () => {
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
   const [itemCount, setItemCount] = useState(0);
 
   useEffect(() => {
-    if (user?.uid) {
+    if (mongoUser?.uid) {
       loadCart();
     } else {
       setCart(null);
       setItemCount(0);
     }
-  }, [user]);
+  }, [mongoUser]);
 
   useEffect(() => {
     if (cart) {
@@ -41,15 +41,15 @@ export const useCart = () => {
   }, [cart]);
 
   const loadCart = async () => {
-    if (!user?.uid) return;
+    if (!mongoUser?.uid) return;
 
     try {
       setLoading(true);
-      const response = await api.get(`/cart/getcart/${user.uid}`);
+      const response = await api.get(`/cart/getcart/${mongoUser.uid}`);
       
       if (response.data.message === 'Carrito vacío') {
         setCart({
-          comprador_uid: user.uid,
+          comprador_uid: mongoUser.uid,
           items: [],
           total: 0
         });
@@ -59,7 +59,7 @@ export const useCart = () => {
     } catch (error) {
       console.error('Error cargando carrito:', error);
       setCart({
-        comprador_uid: user.uid,
+        comprador_uid: mongoUser.uid,
         items: [],
         total: 0
       });
@@ -74,14 +74,14 @@ export const useCart = () => {
     precio_unitario: number,
     cantidad: number = 1
   ) => {
-    if (!user?.uid) {
+    if (!mongoUser?.uid) {
       throw new Error('Debes iniciar sesión para agregar al carrito');
     }
 
     try {
       setLoading(true);
       const response = await api.post('/cart/addTocart', {
-        comprador_uid: user.uid,
+        comprador_uid: mongoUser.uid,
         producto_id,
         nombre,
         precio_unitario,
@@ -99,7 +99,7 @@ export const useCart = () => {
   };
 
   const updateQuantity = async (producto_id: string, cantidad: number) => {
-    if (!user?.uid || !cart) return;
+    if (!mongoUser?.uid || !cart) return;
 
     try {
       setLoading(true);
@@ -113,7 +113,7 @@ export const useCart = () => {
 
       if (diferencia !== 0) {
         await api.post('/cart/addTocart', {
-          comprador_uid: user.uid,
+          comprador_uid: mongoUser.uid,
           producto_id,
           nombre: item.nombre,
           precio_unitario: item.precio_unitario,
@@ -131,7 +131,7 @@ export const useCart = () => {
   };
 
   const removeFromCart = async (producto_id: string) => {
-    if (!user?.uid || !cart) return;
+    if (!mongoUser?.uid || !cart) return;
 
     try {
       setLoading(true);
@@ -145,12 +145,12 @@ export const useCart = () => {
 
       // Aquí deberías tener un endpoint específico para eliminar items
       // Por ahora, vamos a usar clearCart y luego agregar los items restantes
-      await api.delete(`/cart/clearCart/${user.uid}`);
+      await api.delete(`/cart/clearCart/${mongoUser.uid}`);
 
       if (updatedItems.length > 0) {
         for (const item of updatedItems) {
           await api.post('/cart/addTocart', {
-            comprador_uid: user.uid,
+            comprador_uid: mongoUser.uid,
             producto_id: item.producto_id,
             nombre: item.nombre,
             precio_unitario: item.precio_unitario,
@@ -169,13 +169,13 @@ export const useCart = () => {
   };
 
   const clearCart = async () => {
-    if (!user?.uid) return;
+    if (!mongoUser?.uid) return;
 
     try {
       setLoading(true);
-      await api.delete(`/cart/clearCart/${user.uid}`);
+      await api.delete(`/cart/clearCart/${mongoUser.uid}`);
       setCart({
-        comprador_uid: user.uid,
+        comprador_uid: mongoUser.uid,
         items: [],
         total: 0
       });

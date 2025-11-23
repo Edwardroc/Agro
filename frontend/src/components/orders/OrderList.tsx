@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import {api} from '../../config/api';
 
 interface Order {
@@ -25,7 +25,7 @@ interface Order {
 }
 
 export const OrderList = () => {
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,10 +33,10 @@ export const OrderList = () => {
 
   useEffect(() => {
     loadOrders();
-  }, [user]);
+  }, [mongoUser]);
 
   const loadOrders = async () => {
-    if (!user?.uid) return;
+    if (!mongoUser?.uid) return;
 
     try {
       setLoading(true);
@@ -44,13 +44,13 @@ export const OrderList = () => {
       
       // Filtrar órdenes según el rol
       let userOrders = response.data;
-      if (user.rol === 'comprador') {
+      if (mongoUser.rol === 'comprador') {
         userOrders = response.data.filter(
-          (order: Order) => order.comprador_uid === user.uid
+          (order: Order) => order.comprador_uid === mongoUser.uid
         );
-      } else if (user.rol === 'vendedor') {
+      } else if (mongoUser.rol === 'vendedor') {
         userOrders = response.data.filter(
-          (order: Order) => order.vendedor_uid === user.uid
+          (order: Order) => order.vendedor_uid === mongoUser.uid
         );
       }
       
@@ -124,7 +124,7 @@ export const OrderList = () => {
               ? 'Aún no tienes ningún pedido'
               : `No hay pedidos con estado: ${filterStatus}`}
           </p>
-          {user?.rol === 'comprador' && (
+          {mongoUser?.rol === 'comprador' && (
             <button
               className="btn-primary"
               onClick={() => navigate('/products')}

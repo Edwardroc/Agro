@@ -6,7 +6,7 @@ export interface Direccion {
 
 export interface User {
   _id?: string;
-  uid: string; // UID de Firebase
+  uid: string;
   primer_nombre: string;
   segundo_nombre?: string;
   primer_apellido: string;

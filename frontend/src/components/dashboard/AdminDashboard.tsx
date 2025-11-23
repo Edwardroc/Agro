@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import {api} from '../../config/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { api } from '../../config/api';
 import '../../styles/dashboard.css';
 
 interface User {
   _id: string;
   uid: string;
-  nombre: string;
+  primer_nombre: string;
+  primer_apellido: string;
   email: string;
   rol: string;
   estado: string;
@@ -21,7 +22,7 @@ interface DashboardStats {
 }
 
 export const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { mongoUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -41,8 +42,8 @@ export const AdminDashboard = () => {
       setLoading(true);
       const [usersRes, productsRes, ordersRes] = await Promise.all([
         api.get('/user'),
-        api.get('/product/getProducts'),
-        api.get('/order/getOrders')
+        api.get('/product'),
+        api.get('/order')
       ]);
 
       const usersData = usersRes.data;
@@ -108,7 +109,7 @@ export const AdminDashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1>Panel de Administración</h1>
-        <p>Bienvenido, {user?.nombre}</p>
+        <p>Bienvenido, {mongoUser?.primer_nombre}</p>
       </div>
 
       <div className="dashboard-tabs">
@@ -185,7 +186,7 @@ export const AdminDashboard = () => {
                       .filter(u => u.estado === 'pendiente')
                       .map(user => (
                         <tr key={user._id}>
-                          <td>{user.nombre}</td>
+                          <td>{user.primer_nombre} {user.primer_apellido}</td>
                           <td>{user.email}</td>
                           <td>
                             <span className={`role-badge ${user.rol}`}>
@@ -234,7 +235,7 @@ export const AdminDashboard = () => {
                 <tbody>
                   {users.map(user => (
                     <tr key={user._id}>
-                      <td>{user.nombre}</td>
+                      <td>{user.primer_nombre} {user.primer_apellido}</td>
                       <td>{user.email}</td>
                       <td>
                         <span className={`role-badge ${user.rol}`}>

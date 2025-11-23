@@ -6,14 +6,14 @@ import {
   updateUser,
   deleteUser,
   approveOrRejectUser,
-} from "../controllers/user.controller";
+} from "../controllers/user.controller.js";
 
-import { verifyFirebaseToken } from "../middlewares/verifyFirebase";
-import { checkRole } from "../middlewares/checkRole";
+import { verifyFirebaseToken } from "../middlewares/verifyFirebase.js";
+import { checkRole } from "../middlewares/checkRole.js";
 
 const router = express.Router();
 
-
+// Crear usuario (público pero requiere token)
 router.post("/", verifyFirebaseToken, createUser);
 
 // Obtener todos los usuarios (solo admin)
@@ -22,7 +22,7 @@ router.get("/", verifyFirebaseToken, checkRole(["admin"]), getAllUsers);
 // Obtener usuario por UID de Firebase
 router.get("/:uid", verifyFirebaseToken, getUserByFirebaseUID);
 
-// Actualizar usuario por ID (cualquier usuario autenticado puede actualizar su info)
+// Actualizar usuario por ID
 router.put("/:id", verifyFirebaseToken, updateUser);
 
 // Eliminar usuario (solo admin)
